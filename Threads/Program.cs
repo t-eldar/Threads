@@ -8,7 +8,7 @@ Console.WriteLine($"Введите текст запроса. Для выход�
 var command = Console.ReadLine();
 while (command != ExitCommand)
 { 
-	var requestHandler = new SimpleRequestHandler();
+	IRequestHandler requestHandler = new DummyRequestHandler();
 	var arguments = new List<string?>();
 
 	Console.WriteLine(
@@ -26,24 +26,24 @@ while (command != ExitCommand)
 
 	var id = Guid.NewGuid();
 
-	var thread = new Thread(() => {
+	ThreadPool.QueueUserWorkItem(_ =>
+	{
 		var result = "";
 		var message = command;
 		try
 		{
 			result = requestHandler.HandleRequest(message, arguments.ToArray());
 			Console.ForegroundColor = ConsoleColor.Green;
-			Console.WriteLine($"Сообщение {message} с идентификатором {id} получило ответ: {result}");
+			Console.WriteLine($"Сообщение \"{message}\" с идентификатором {id} получило ответ: {result}");
 			Console.ForegroundColor = ConsoleColor.White;
 		}
 		catch (Exception ex)
 		{
 			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine($"Сообщение {message} с идентификатором {id} упало с ошибкой: {ex.Message}");
+			Console.WriteLine($"Сообщение \"{message}\" с идентификатором {id} упало с ошибкой: {ex.Message}");
 			Console.ForegroundColor = ConsoleColor.White;
 		}
 	});
-	thread.Start();
 
 	Console.ForegroundColor = ConsoleColor.Cyan;
 	Console.WriteLine($"Было отправлено сообщение {command} присвоен идентификатор {id}");
